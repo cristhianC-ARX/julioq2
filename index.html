@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Indicadores IT - Histórico</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #3C4F5E 0%, #3C4F5E 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #4a6741 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: rotate(45deg);
+            animation: shine 4s infinite;
+        }
+        
+        @keyframes shine {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+        }
+        
+        .header h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .table-container {
+            padding: 0;
+            overflow-x: auto;
+        }
+        
+        .indicators-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            background: white;
+        }
+        
+        .indicators-table thead {
+            background: linear-gradient(135deg, #34495e, #2c3e50);
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .indicators-table th {
+            padding: 15px 10px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-right: 1px solid rgba(255,255,255,0.2);
+            position: relative;
+        }
+        
+        .indicators-table th:last-child {
+            border-right: none;
+        }
+        
+        .indicators-table th::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 10%;
+            right: 10%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #3498db, transparent);
+        }
+        
+        .indicators-table tbody tr {
+            transition: all 0.3s ease;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .indicators-table tbody tr:hover {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            transform: scale(1.005);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        
+        .indicators-table tbody tr:nth-child(even) {
+            background: rgba(248, 249, 250, 0.5);
+        }
+        
+        .indicators-table td {
+            padding: 12px 8px;
+            text-align: center;
+            vertical-align: middle;
+            border-right: 1px solid #dee2e6;
+            position: relative;
+            font-size: 0.8rem;
+        }
+        
+        .indicators-table td:first-child {
+            text-align: left;
+            font-weight: 600;
+            color: #2c3e50;
+            background: linear-gradient(135deg, #ecf0f1, #bdc3c7);
+            border-right: 3px solid #3498db;
+            width: 20%;
+        }
+        
+        .indicators-table td:last-child {
+            border-right: none;
+        }
+        
+        .quarter-header {
+            font-weight: 700;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .percentage-cell {
+            font-weight: 700;
+            font-size: 1rem;
+            position: relative;
+            padding: 10px !important;
+        }
+        
+        .percentage-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            color: white;
+            font-weight: 700;
+            font-size: 0.9rem;
+            position: relative;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+            margin: 0 auto;
+        }
+        
+        .percentage-badge::after {
+            content: '';
+            position: absolute;
+            inset: 2px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 0.4; }
+        }
+        
+        .percentage-100 {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            animation: success-glow 3s infinite;
+        }
+        
+        @keyframes success-glow {
+            0%, 100% { box-shadow: 0 3px 10px rgba(39, 174, 96, 0.3); }
+            50% { box-shadow: 0 3px 15px rgba(39, 174, 96, 0.6); }
+        }
+        
+        .percentage-80 {
+            background: linear-gradient(135deg, #e67e22, #f39c12);
+            animation: warning-glow 3s infinite;
+        }
+        
+        @keyframes warning-glow {
+            0%, 100% { box-shadow: 0 3px 10px rgba(230, 126, 34, 0.3); }
+            50% { box-shadow: 0 3px 15px rgba(230, 126, 34, 0.6); }
+        }
+        
+        .percentage-0 {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            animation: danger-glow 3s infinite;
+        }
+        
+        @keyframes danger-glow {
+            0%, 100% { box-shadow: 0 3px 10px rgba(231, 76, 60, 0.3); }
+            50% { box-shadow: 0 3px 15px rgba(231, 76, 60, 0.6); }
+        }
+
+        .percentage-67 {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            animation: warning-glow 3s infinite;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 5px;
+            animation: blink 2s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .status-complete {
+            background: #27ae60;
+        }
+        
+        .status-progress {
+            background: #f39c12;
+        }
+        
+        .status-pending {
+            background: #e74c3c;
+        }
+        
+        .meta-text {
+            font-size: 0.75rem;
+            color: #7f8c8d;
+            line-height: 1.3;
+            margin-top: 4px;
+            font-style: italic;
+        }
+        
+        .category-cell {
+            background: linear-gradient(135deg, #3498db, #2980b9) !important;
+            color: white !important;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-left: 5px solid #1abc9c !important;
+            position: relative;
+        }
+        
+        .category-cell::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 0 15px 15px 0;
+            border-color: transparent #1abc9c transparent transparent;
+        }
+        
+        .status-cell {
+            font-weight: 700;
+            font-size: 0.75rem;
+            padding: 8px 6px !important;
+        }
+        
+        .status-completed {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+        }
+        
+        .status-progress {
+            background: linear-gradient(135deg, #e67e22, #f39c12);
+            color: white;
+        }
+        
+        .status-pending {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+        }
+        
+        .status-initiating {
+            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+            color: white;
+        }
+        
+        .footer-legend {
+            background: linear-gradient(135deg, #ecf0f1, #bdc3c7);
+            padding: 20px;
+            text-align: center;
+            border-top: 3px solid #3498db;
+        }
+        
+        .legend-items {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+        
+        .legend-green {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+        }
+        
+        .legend-orange {
+            background: linear-gradient(135deg, #e67e22, #f39c12);
+        }
+        
+        .legend-red {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+        
+        .progress-bar-mini {
+            width: 100%;
+            height: 4px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+        
+        .progress-fill-mini {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 2s ease-in-out;
+        }
+        
+        .progress-100 { background: linear-gradient(90deg, #27ae60, #2ecc71); width: 100%; }
+        .progress-80 { background: linear-gradient(90deg, #e67e22, #f39c12); width: 80%; }
+        .progress-67 { background: linear-gradient(90deg, #f39c12, #e67e22); width: 67%; }
+        .progress-0 { background: linear-gradient(90deg, #e74c3c, #c0392b); width: 0%; }
+        
+        .obs-cell {
+            text-align: left !important;
+            font-size: 0.75rem;
+            line-height: 1.3;
+        }
+        
+        @media (max-width: 1400px) {
+            .indicators-table {
+                font-size: 0.75rem;
+            }
+            
+            .indicators-table th,
+            .indicators-table td {
+                padding: 8px 6px;
+            }
+            
+            .percentage-badge {
+                width: 40px;
+                height: 40px;
+                font-size: 0.8rem;
+            }
+        }
+        
+        @media (max-width: 1000px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .indicators-table {
+                font-size: 0.7rem;
+            }
+            
+            .indicators-table th,
+            .indicators-table td {
+                padding: 6px 4px;
+            }
+            
+            .percentage-badge {
+                width: 35px;
+                height: 35px;
+                font-size: 0.7rem;
+            }
+            
+            .legend-items {
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Indicadores IT - Julio</h1>
+            <p>Seguimiento Q1, Q2 y Q3 - Año 2025</p>
+        </div>
+        
+        <div class="table-container">
+            <table class="indicators-table">
+                <thead>
+                    <tr>
+                        <th style="width: 20%;">
+                            <div class="quarter-header">📋 Categoría / Indicador</div>
+                        </th>
+                        <th style="width: 10%;">
+                            <div class="quarter-header">📊 Q1 (%)</div>
+                        </th>
+                        <th style="width: 8%;">
+                            <div class="quarter-header">✅ Estado Q1</div>
+                        </th>
+                        <th style="width: 10%;">
+                            <div class="quarter-header">📊 Q2 (%)</div>
+                        </th>
+                        <th style="width: 8%;">
+                            <div class="quarter-header">✅ Estado Q2</div>
+                        </th>
+                        <th style="width: 10%;">
+                            <div class="quarter-header">📊 Q3 (%)</div>
+                        </th>
+                        <th style="width: 8%;">
+                            <div class="quarter-header">✅ Estado Q3</div>
+                        </th>
+                        <th style="width: 26%;">
+                            <div class="quarter-header">📝 Observaciones</div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Funcionamiento de sistemas -->
+                    <tr>
+                        <td class="category-cell">🖥️ FUNCIONAMIENTO SISTEMAS</td>
+                        <td class="percentage-cell">
+                            <div class="percentage-badge percentage-100">100%</div>
+                            <div class="progress-bar-mini">
+                                <div class="progress-fill-mini progress-100"></div>
+                            </div>
+                        </td>
+                        <td class="status-cell status-completed">✅ COMPLETO</td>
+                        <td class="percentage-cell">
+                            <div class="percentage-badge percentage-100">100%</div>
+                            <div class="progress-bar-mini">
+                                <div class="progress-fill-mini progress-100"></div>
+                            </div>
+                        </td>
+                        <td class="status-cell status-completed">✅ COMPLETO</td>
+                        <td class="percentage-cell">
+                            <div class="percentage-badge percentage-0">0%</div>
+                            <div class="progress-bar-mini">
+                                <div class="progress-fill-mini progress-0"></div>
+                            </div>
+                        </td>
+                        <td class="status-cell status-initiating">🔄 INICIANDO</td>
+                        <td class="obs-cell">
+                            <span class="status-indicator status-complete"></span>
+                            <strong>Q1-Q2: Completado</strong><br>
+                            <div class="meta-text">Q3: Meta establecida para validación</div>
+                        </td>
+                    </tr>
+                    
+                    <!-- Conectividad -->
+                    <tr>
+                        <td class="category-cell">🌐 CONECTIVIDAD ESTABLE</td>
+                        <td class="percentage-cell">
+                            <div class="percentage-badge percentage-100">100%</div>
+                            <div class="progress-bar-mini">
+                                <div class="progress-fill-mini progress-100"></div>
+                            </div>
+                        </td>
+                        <td class="status-cell status-completed">✅ COMPLETO</td>
+                        <td class="percentage-cell">
+                            <div class="percentage-badge percentage-100">100%</div>
+                            <div class="progress-bar-mini">
+                                <div class="progress-fill-mini progress-100"></div>
+                            </div>
+                        </td>
+                        <td class="status-cell status-completed">✅ COMPLETO</td>
+                        <td class="percentage-cell">
+                            <div class="percentage-badge percentage-0">0%</div>
+                            <div class="progress-bar-mini">
+                                <div class="progress-fill-mini progress-0"></div>
+                            </div>
+                        </td>
+                        <td class="status-cell status-initiating">🔄 INICIANDO</td>
+                        <td class="obs-cell">
+                            <span class="status-indicator status-complete"></span>
+                            <strong>Q1-Q2: Completado</strong><br>
+                            <div class="meta-text">Q3: Meta establecida para validación</div>
+                        </td>
+                    </tr>
+                    
+                    <!-- Gestión de usuarios -->
+                    <tr>
+                        <td class="category-cell">👥 GESTIÓN USUARIOS</td>
+                        <td class="percentage-cell">
+                            <div class="percentage-badge percentage-100">100%</div>
+                            <div class="progress-bar-mini">
+                                <div class="progress-fill-mini progress-100"></div>
+                            </div>
+                        </td>
+                        <td class="status-cell status-completed">✅ COMPLETO</td>
+                        <td class="percentage-cell">-</td>
+                        <td class="status-cell">-</td>
+                        <td class="percentage-cell">-</td>
+                        <td class="status-cell">-</td>
+                        <td class="obs-cell">
+                            <span class="status-indicator status-complete"></span>
+                            <strong>Usuarios archivados y casos trasladados</strong><br>
+                            <div class="meta-text">Tarea específica de Q1</div>
+                        </td>
+                    </tr>
+                    
+                    <!-- Check list agencias -->
+                    <tr>
+                        <td class="category-cell">🏢 CHECK LIST AGENCIAS</td>
+                        <td class="percentage-cell">
+                            <div class="percentage-badge percentage-100">100%</div>
+                            <div class="progress-bar-mini">
+                                <div class="progress-fill-mini progress-100"></div>
+                            </div>
+                        </td>
+                        <td class="status-cell status-completed">✅ COMPLETO</td>
+                        <td class="percentage-cell">-</td>
+                        <td class="status-cell">-</td>
+                        <td class="percentage-cell">-</td>
+                        <td class="status-cell">-</td>
+                        <td class="obs-cell">
+                            <span class="status-indicator status-complete"></span>
+                            <strong>Accesos, equipos, cámaras y tableros OK</strong><br>
+                            <div class="meta-text">Tarea específica de Q1</div>
+                        </td>
+                    </tr>
+                    
+                    <!-- Reclutamiento RRHH -->
+                    <tr>
+                        <td class="category-cell">🎯 RECLUTAMIENTO RRHH</td>
+                        <td class="percentage-cell">
+                            <div class="percentage-badge percentage-67">67%</div>
+                            <div class="progress-bar-mini">
+                                <div class="progress-fill-mini progress-67"></div>
+                            </div>
+                        </td>
+                        <td class="status-cell status-progress">⏳ PROGRESO</td>
+                        <td class="percentage-cell">
+                            <div class="percentage-badge percentage-67">67%</div>
+                            <div class="progress-bar-mini">
+                                <div class="progress-fill-mini progress-67"></div>
+                            </div>
+                        </td>
+                        <td class="status-cell status-progress">⏳ PROGRESO</td>
+                        <td class="percentage-cell">
+                            <div class="percentage-badge percentage-67">67%</div>
+                            <div class="progress-bar-mini">
+                                <div class="progress-fill-mini progress-67"></div>
+                            </div>
+                        </td>
+                        <td class="status-cell status-progress">⏳ PROGRESO</td>
+                        <td class="obs-cell">
+                            <span class="status-indicator status-progress"></span>
+                            <strong>2 de 3 subtareas completadas</strong><br>
+                            <div class="meta-text">Pendiente proyecto reclutamiento Coope</div>
+                        </td>
+                    </tr>
+                    
+                    <!-- Traslado Carlos Diaz -->
+                    <tr>
+                        <td class="category-cell">📁 TRASLADO CARLOS DIAZ</td>
+                        <td class="percentage-cell">
+                            <div class="percentage-badge percentage-100">100%</div>
+                            <div class="progress-bar-mini">
+                                <div class="progress-fill-mini progress-100"></div>
+                            </div>
+                        </td>
+                        <td class="status-cell status-completed">✅ COMPLETO</td>
+                        <td class="percentage-cell">-</td>
+                        <td class="status-cell">-</td>
+                        <td class="percentage-cell">-</td>
+                        <td class="status-cell">-</td>
+                        <td class="obs-cell">
+                            <span class="status-indicator status-complete"></span>
+                            <strong>Casos trasladados a Evelyn Roldan</strong><br>
+                            <div class="meta-text">Tarea específica de Q1</div>
+                        </td>
+                    </tr>
+                    
+                    <!-- Traslado múltiples -->
+                    <tr>
+                        <td class="category-cell">📁 TRASLADO MÚLTIPLES</td>
+                        <td class="percentage-cell">
+                            <div class="percentage-badge percentage-100">100%</div>
+                            <div class="progress-bar-mini">
+                                <div class="progress-fill-mini progress-100"></div>
+                            </div>
+                        </td>
+                        <td class="status-cell status-completed">✅ COMPLETO</td>
+                        <td class="percentage-cell">-</td>
+                        <td class="status-cell">-</td>
+                        <td class="percentage-cell">-</td>
+                        <td class="status-cell">-</td>
+                        <td class="obs-cell">
+                            <span class="status-indicator status-complete"></span>
+                            <strong>4 colaboradores a Emely Jiménez</strong><br>
+                            <div class="meta-text">Tarea específica de Q1</div>
+                        </td>
+                    </tr>
+                    
+                    <!-- UPS Petén -->
+                    <tr>
+                        <td class="category-cell">🔌 UPS PETÉN</td>
+                        <td class="percentage-cell">
+                            <div class="percentage-badge percentage-100">100%</div>
+                            <div class="progress-bar-mini">
+                                <div class="progress-fill-mini progress-100"></div>
+                            </div>
+                        </td>
+                        <td class="status-cell status-completed">✅ COMPLETO</td>
+                        <td class="percentage-cell">-</td>
+                        <td class="status-cell">-</td>
+                        <td class="percentage-cell">-</td>
+                        <td class="status-cell">-</td>
+                        <td class="obs-cell">
+                            <span class="status-indicator status-complete"></span>
+                            <strong>UPS instalado correctamente</strong><br>
+                            <div class="meta-text">Protección eléctrica implementada Q1</div>
+                        </td>
+                    </tr>
+                    
+                    <!-- Mantenimientos -->
+                    <tr>
+                        <td class="category-cell">🔧 MANTENIMIENTOS</td>
+                        <td class="percentage-cell">
+                            <div class="percentage-badge percentage-80">80%</div>
+                            <div class="progress-bar-mini">
+                                <div class="progress-fill-mini progress-80"></div>
+                            </div>
+                        </td>
+                        <td class="status-cell status-progress">⏳ PROGRESO</td>
+                        <td class="percentage-cell">
+                            <div class="percentage-badge percentage-100">100%</div>
+                            <div class="progress-bar-mini">
+                                <div class="progress-fill-mini progress-100"></div>
+                            </div>
+                        </td>
+                        <td class="status-cell status-completed">✅ COMPLETO</td>
+                        <td class="percentage-cell">-</td>
+                        <td class="status-cell">-</td>
+                        <td class="obs-cell">
+                            <span class="status-indicator status-complete"></span>
+                            <strong>Q1: En progreso | Q2: Completado</strong><br>
+                            <div class="meta-text">Áreas RRHH y Contabilidad finalizadas</div>
+                        </td>
+                    </tr>
+                    
+                    <!-- Respaldos -->
+                    <tr>
+                        <td class="category-cell">💾 RESPALDOS</td>
+                        <td class="percentage-cell">
+                            <div class="percentage-badge percentage-80">80%</div>
+                            <div class="progress-bar-mini">
+                                <div class="progress-fill-mini progress-80"></div>
+                            </div>
+                        </td>
+                        <td class="status-cell status-progress">⏳ PROGRESO</td>
+                        <td class="percentage-cell">
+                            <div class="percentage-badge percentage-100">100%</div>
+                            <div class="progress-bar-mini">
+                                <div class="progress-fill-mini progress-100"></div>
+                            </div>
+                        </td>
+                        <td class="status-cell status-completed">✅ COMPLETO</td>
+                        <td class="percentage-cell">-</td>
+                        <td class="status-cell">-</td>
+                        <td class="obs-cell">
+                            <span class="status-indicator status-complete"></span>
+                            <strong>Q1: En progreso | Q2: Completado</strong><br>
+                            <div class="meta-text">Todas las sedes incluida Petén finalizadas</div>
+                        </td>
+                    </tr>
+                    
+                    <!-- Tableros -->
+                    <tr>
+                        <td class="category-cell">📊 TABLEROS</td>
+                        <td class="percentage-cell">
+                            <div class="percentage-badge percentage-80">80%</div>
+                            <div class="progress-bar-mini">
+                                <div class="progress-fill-mini progress-80"></div>
+                            </div>
+                        </td>
+                        <td class="status-cell status-progress">⏳ PROGRESO</td>
+                        <td class="percentage-cell">
+                            <div class="percentage-badge percentage-80">80%</div>
+                            <div class="progress-bar-mini">
+                                <div class="progress-fill-mini progress-80"></div>
+                            </div>
+                        </td>
+                        <td class="status-cell status-progress">⏳ PROGRESO</td>
+                        <td class="percentage-cell">
+                            <div class="percentage-badge percentage-80">80%</div>
+                            <div class="progress-bar-mini">
+                                <div class="progress-fill-mini progress-80"></div>
+                            </div>
+                        </td>
+                        <td class="status-cell status-progress">⏳ PROGRESO</td>
+                        <td class="obs-cell">
+                            <span class="status-indicator status-progress"></span>
+                            <strong>Demo listo en base de prueba</strong><br>
+                            <div class="meta-text">Validando con desarrollador para producción</div>
+                        </td>
+                    </tr>
+                    
+                    <!-- UPS Escuintla -->
+                    <tr>
+                        <td class="category-cell">🔌 UPS ESCUINTLA</td>
+                        <td class="percentage-cell">-</td>
+                        <td class="status-cell">-</td>
+                        <td class="percentage-cell">-</td>
+                        <td class="status-cell">-</td>
+                        <td class="percentage-cell">
+                            <div class="percentage-badge percentage-0">0%</div>
+                            <div class="progress-bar-mini">
+                                <div class="progress-fill-mini progress-0"></div>
+                            </div>
+                        </td>
+                        <td class="status-cell status-pending">⏳ PENDIENTE</td>
+                        <td class="obs-cell">
+                            <span class="status-indicator status-pending"></span>
+                            <strong>Nueva tarea Q3</strong><br>
+                            <div class="meta-text">Esperando equipo del área de compras</div>
+                        </td>
+                    </tr>
+                    
+                    <!-- Transformador cámaras -->
+                    <tr>
+                        <td class="category-cell">📹 TRANSFORMADOR CÁMARAS</td>
+                        <td class="percentage-cell">-</td>
+                        <td class="status-cell">-</td>
+                        <td class="percentage-cell">-</td>
+                        <td class="status-cell">-</td>
+                        <td class="percentage-cell">
+                            <div class="percentage-badge percentage-0">0%</div>
+                            <div class="progress-bar-mini">
+                                <div class="progress-fill-mini progress-0"></div>
+                            </div>
+                        </td>
+                        <td class="status-cell status-pending">⏳ PENDIENTE</td>
+                        <td class="obs-cell">
+                            <span class="status-indicator status-pending"></span>
+                            <strong>Transformador quemado en Escuintla</strong><br>
+                            <div class="meta-text">Esperando repuesto del área de compras</div>
+                        </td>
+                    </tr>
+                    
+                    <!-- Equipo marcaje -->
+                    <tr>
+                        <td class="category-cell">⏰ EQUIPO MARCAJE</td>
+                        <td class="percentage-cell">-</td>
+                        <td class="status-cell">-</td>
+                        <td class="percentage-cell">-</td>
+                        <td class="status-cell">-</td>
+                        <td class="percentage-cell">
+                            <div class="percentage-badge percentage-0">0%</div>
+                            <div class="progress-bar-mini">
+                                <div class="progress-fill-mini progress-0"></div>
+                            </div>
+                        </td>
+                        <td class="status-cell status-pending">⏳ PENDIENTE</td>
+                        <td class="obs-cell">
+                            <span class="status-indicator status-pending"></span>
+                            <strong>Asignación a sede Escuintla</strong><br>
+                            <div class="meta-text">Esperando equipo del área de compras</div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="footer-legend">
+            <div class="legend-items">
+                <div class="legend-item">
+                    <div class="legend-color legend-green"></div>
+                    <span>🎯 Completado (90-100%)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color legend-orange"></div>
+                    <span>⏳ En Progreso (50-89%)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color legend-red"></div>
+                    <span>❌ Pendiente (0-49%)</span>
+                </div>
+            </div>
+            <p style="margin-top: 15px; font-size: 0.85rem; color: #7f8c8d; font-style: italic;">
+                📈 <strong>Resumen Histórico:</strong> 
+                Q1: 8 completados, 3 en progreso • 
+                Q2: 4 completados, 2 en progreso • 
+                Q3: 2 iniciando, 2 en progreso (desde Q2), 3 pendientes (compras) • 
+                <strong>Efectividad Q1: 89% | Q2: 80% | Q3: Iniciando</strong>
+            </p>
+        </div>
+    </div>
+    
+    <script>
+        // Animación de entrada para las barras de progreso
+        document.addEventListener('DOMContentLoaded', function() {
+            const progressBars = document.querySelectorAll('.progress-fill-mini');
+            
+            setTimeout(() => {
+                progressBars.forEach(bar => {
+                    bar.style.width = '0%';
+                    setTimeout(() => {
+                        if (bar.classList.contains('progress-100')) bar.style.width = '100%';
+                        if (bar.classList.contains('progress-80')) bar.style.width = '80%';
+                        if (bar.classList.contains('progress-67')) bar.style.width = '67%';
+                        if (bar.classList.contains('progress-0')) bar.style.width = '0%';
+                    }, 200);
+                });
+            }, 1000);
+        });
+        
+        // Efecto hover mejorado en las filas
+        document.querySelectorAll('.indicators-table tbody tr').forEach(row => {
+            row.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.005)';
+                this.style.zIndex = '5';
+            });
+            
+            row.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+                this.style.zIndex = '1';
+            });
+        });
+    </script>
+</body>
+</html>
+                            
